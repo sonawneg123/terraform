@@ -1,0 +1,65 @@
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/sonawneg123/terraform.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('jenkins-terraform-project') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Validate') {
+            steps {
+                dir('jenkins-terraform-project') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            steps {
+                dir('jenkins-terraform-project') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Manager Approval') {
+            steps {
+                input message: 'Do you want to apply this Terraform plan?', ok: 'Approve'
+            }
+        }
+
+        stage('Terraform Apply') {
+            steps {
+                dir('jenkins-terraform-project') {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+        stage('Manager Approval for Destroy') {
+    steps {
+        input message: 'Do you want to destroy the infrastructure?', ok: 'Destroy'
+    }
+}
+
+stage('Terraform Destroy') {
+    steps {
+        dir('jenkins-terraform-project') {
+            sh 'terraform destroy -auto-approve'
+        }
+    }
+}
+    }
+    
+}

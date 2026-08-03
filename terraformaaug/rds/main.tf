@@ -1,5 +1,5 @@
 resource "aws_vpc" "terrform_vpc" {
-  cidr_block = var.vpc_cidr_block
+  cidr_block = "10.0.0.0/16"
   tags = {
     Name = "terraform-vpc"
   }
@@ -82,7 +82,7 @@ resource "aws_internet_gateway" "terraform_internet_gateway" {
   
 }
 resource "aws_eip" "terraform_eip" {
-  vpc = true
+  
   tags = {
     Name = "terraform-eip"
   }
@@ -102,8 +102,8 @@ resource "aws_route" "terraform_route" {
   destination_cidr_block = "0.0.0.0/0"
   nat_gateway_id         = aws_nat_gateway.terraform_nat_gateway.id
 }
-resource "aws_subnet_group" "terraform_subnet_group" {
-  name       = "terraform-subnet-group"
+resource "aws_db_subnet_group" "terraform_subnet_group" {
+
   subnet_ids = [aws_subnet.terraform_subnetpr1.id, aws_subnet.terraform_subnetpr2.id]
   tags = {
     Name = "terraform-subnet-group"
@@ -135,11 +135,10 @@ resource "aws_db_instance" "master" {
   engine               = "mysql"
   engine_version       = "8.0"
   instance_class       = "db.t3.micro"
-  name                 = var.db_name
   username             = var.db_username
   password             = var.db_password
   parameter_group_name = "default.mysql8.0"
-  db_subnet_group_name = aws_subnet_group.terraform_subnet_group.name
+  db_subnet_group_name = aws_db_subnet_group.terraform_subnet_group.name
   vpc_security_group_ids = [aws_security_group.dbsg.id]
   skip_final_snapshot   = true
 }
@@ -147,7 +146,8 @@ resource "aws_db_instance" "read_replica" {
   count                = var.create_read_replica ? 1 : 0
   replicate_source_db  = aws_db_instance.master.id
   instance_class       = "db.t3.micro"
-  db_subnet_group_name = aws_subnet_group.terraform_subnet_group.name
+  db_subnet_group_name = aws_db_subnet_group.terraform_subnet_group.name
   vpc_security_group_ids = [aws_security_group.dbsg.id]
   skip_final_snapshot   = true
 }
+

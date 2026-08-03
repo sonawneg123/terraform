@@ -9,23 +9,25 @@ variable "subnet_cidr_blockpb" {
     type        = string
     default     = "10.0.0.0/24"
 }
-variable "avaialability_zone1" {
+variable "availability_zone1" {
     description = "Availability zone for the public subnet"
     type        = string
     default     = "us-east-1a"
   
 }
-variable "subnet_cidr_block" { 
+variable"subnet_cidr_block1" {
+    description = "CIDR block for the public subnet"
+    type        = string
+    default     = "10.0.0.0/24"
+}
+variable "subnet_cidr_block2" { 
     description = "CIDR block for the private subnet"
     type        = string
     default     = "10.0.1.0/24"
 }
-variable "avaialability_zone2" {
-    description = "Availability zone for the private subnet"
-    type        = string
-    default     = "us-east-1b"
+
   
-}
+
 variable "subnet_cidr_block3" {
     description = "CIDR block for the private subnet"
     type        = string
@@ -60,5 +62,11 @@ variable "create_read_replica" {
     description = "Whether to create a read replica"
     type        = bool
     default     = false
+  
+}
+variable "availability_zone2" {
+    description = "Availability zone for the first subnet"
+    type        = string
+    default     = "us-east-1b"
   
 }

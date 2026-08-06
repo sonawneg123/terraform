@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    triggers {
+        pollSCM('H/2 * * * *')
+    }
+
     stages {
 
         stage('Checkout') {
@@ -12,25 +16,19 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('jenkins-terraform-project') {
-                    sh 'terraform init'
-                }
+                sh 'terraform init'
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                dir('jenkins-terraform-project') {
-                    sh 'terraform validate'
-                }
+                sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir('jenkins-terraform-project') {
-                    sh 'terraform plan'
-                }
+                sh 'terraform plan'
             }
         }
 
@@ -42,24 +40,20 @@ pipeline {
 
         stage('Terraform Apply') {
             steps {
-                dir('jenkins-terraform-project') {
-                    sh 'terraform apply -auto-approve'
-                }
+                sh 'terraform apply -auto-approve'
             }
         }
-        stage('Manager Approval for Destroy') {
-    steps {
-        input message: 'Do you want to destroy the infrastructure?', ok: 'Destroy'
-    }
-}
 
-stage('Terraform Destroy') {
-    steps {
-        dir('jenkins-terraform-project') {
-            sh 'terraform destroy -auto-approve'
+        stage('Manager Approval for Destroy') {
+            steps {
+                input message: 'Do you want to destroy the infrastructure?', ok: 'Destroy'
+            }
+        }
+
+        stage('Terraform Destroy') {
+            steps {
+                sh 'terraform destroy -auto-approve'
+            }
         }
     }
-}
-    }
-    
 }

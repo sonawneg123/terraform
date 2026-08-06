@@ -15,64 +15,54 @@ pipeline {
 
         stage('Terraform Init') {
             steps {
-                dir('jenkins-terraform-project/jenkinsfile') {
-                    sh 'terraform init'
-                }
+                sh 'terraform init'
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                dir('jenkins-terraform-project/jenkinsfile') {
-                    sh 'terraform validate'
-                }
+                sh 'terraform validate'
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                dir('jenkins-terraform-project/jenkinsfile') {
-                    sh 'terraform plan -out=tfplan'
-                }
+                sh 'terraform plan -out=tfplan'
             }
         }
 
         stage('Approval') {
             steps {
-                input message: 'Do you want to apply the Terraform plan?', ok: 'Apply'
+                input message: 'Approve Terraform Apply?', ok: 'Apply'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                dir('jenkins-terraform-project/jenkinsfile') {
-                    sh 'terraform apply -auto-approve tfplan'
-                }
+                sh 'terraform apply -auto-approve tfplan'
             }
         }
 
         stage('Destroy Approval') {
             steps {
-                input message: 'Do you want to destroy the infrastructure?', ok: 'Destroy'
+                input message: 'Destroy Infrastructure?', ok: 'Destroy'
             }
         }
 
         stage('Terraform Destroy') {
             steps {
-                dir('jenkins-terraform-project/jenkinsfile') {
-                    sh 'terraform destroy -auto-approve'
-                }
+                sh 'terraform destroy -auto-approve'
             }
         }
     }
 
     post {
         success {
-            echo 'Terraform pipeline completed successfully.'
+            echo 'Pipeline completed successfully.'
         }
 
         failure {
-            echo 'Terraform pipeline failed.'
+            echo 'Pipeline failed.'
         }
 
         always {

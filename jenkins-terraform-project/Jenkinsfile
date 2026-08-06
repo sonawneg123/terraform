@@ -9,42 +9,49 @@ pipeline {
 
         stage('Checkout') {
             steps {
-                git branch: 'main',
-                    url: 'https://github.com/sonawneg123/terraform.git'
+                checkout scm
             }
         }
 
         stage('Terraform Init') {
             steps {
-                sh 'terraform init'
+                dir('jenkins-terraform-project/jenkinsfile') {
+                    sh 'terraform init'
+                }
             }
         }
 
         stage('Terraform Validate') {
             steps {
-                sh 'terraform validate'
+                dir('jenkins-terraform-project') {
+                    sh 'terraform validate'
+                }
             }
         }
 
         stage('Terraform Plan') {
             steps {
-                sh 'terraform plan'
+                dir('jenkins-terraform-project/jenkinsfile') {
+                    sh 'terraform plan -out=tfplan'
+                }
             }
         }
 
-        stage('Manager Approval') {
+        stage('Approval') {
             steps {
-                input message: 'Do you want to apply this Terraform plan?', ok: 'Approve'
+                input message: 'Do you want to apply the Terraform plan?', ok: 'Apply'
             }
         }
 
         stage('Terraform Apply') {
             steps {
-                sh 'terraform apply -auto-approve'
+                dir('jenkins-terraform-project/jenkinsfile') {
+                    sh 'terraform apply -auto-approve tfplan'
+                }
             }
         }
 
-        stage('Manager Approval for Destroy') {
+        stage('Destroy Approval') {
             steps {
                 input message: 'Do you want to destroy the infrastructure?', ok: 'Destroy'
             }
@@ -52,8 +59,24 @@ pipeline {
 
         stage('Terraform Destroy') {
             steps {
-                sh 'terraform destroy -auto-approve'
+                dir('jenkins-terraform-project/jenkinsfile') {
+                    sh 'terraform destroy -auto-approve'
+                }
             }
+        }
+    }
+
+    post {
+        success {
+            echo 'Terraform pipeline completed successfully.'
+        }
+
+        failure {
+            echo 'Terraform pipeline failed.'
+        }
+
+        always {
+            cleanWs()
         }
     }
 }

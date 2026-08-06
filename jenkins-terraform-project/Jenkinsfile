@@ -23,7 +23,7 @@ pipeline {
 
         stage('Terraform Validate') {
             steps {
-                dir('jenkins-terraform-project') {
+                dir('jenkins-terraform-project/jenkinsfile') {
                     sh 'terraform validate'
                 }
             }
